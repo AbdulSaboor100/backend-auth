@@ -8,7 +8,7 @@ import bcrypt from 'bcrypt';
 import {randomBytes} from 'crypto';
 import Token from "./models/token.js";
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
+import cors from 'cors';
 
 dotenv.config()
 
@@ -17,6 +17,7 @@ dotenv.config()
 const app = express();
 const port = 5000;
 app.use(morgan('tiny'))
+app.use(cors())
 
 let MongoDbURL = process.env.MongoDbURL;
 let SecretNumber = process.env.SecretNumber;
@@ -96,8 +97,10 @@ app.post('/login' , async (req,res, next)=>{
                             userUid : userCheck._id
                         })
                         let tokenSaved = await token.save()
+                        userObj.message = "user login successfully";
+                        userObj.token = tokenSaved.token;
                         if(tokenSaved){
-                            res.json({message : "user login successfully" , user : userObj ,token : tokenSaved.token})
+                            res.json({ user : userObj  })
                         }else{
                             res.json({message : "token is invalid"})
                         }
@@ -124,8 +127,10 @@ app.post('/login' , async (req,res, next)=>{
                     userUid : userCheck._id
                 })
                 let tokenSaved = await token.save()
+                userObj.message = "user login successfully";
+                userObj.token = tokenSaved.token;
                 if(tokenSaved){
-                    res.json({message : "user login successfully" , user : userObj ,token : tokenSaved.token})
+                    res.json({ user : userObj  })
                 }else{
                     res.json({message : "token is invalid"})
                 }
@@ -138,7 +143,6 @@ app.post('/login' , async (req,res, next)=>{
         res.json({error , message : "Credientials Are Wrong"})
     }
 })
-
 
 
 app.post('/logout', async (req,res,next)=>{
