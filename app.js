@@ -9,6 +9,7 @@ import {randomBytes} from 'crypto';
 import Token from "./models/token.js";
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
+import {Socket} from 'socket.io'
 
 dotenv.config()
 
@@ -97,10 +98,10 @@ app.post('/login' , async (req,res, next)=>{
                             userUid : userCheck._id
                         })
                         let tokenSaved = await token.save()
-                        userObj.message = "user login successfully";
-                        userObj.token = tokenSaved.token;
+                        // userObj.message = "user login successfully";
+                        // userObj.token = tokenSaved.token;
                         if(tokenSaved){
-                            res.json({ user : userObj  })
+                            res.json({ user : {message : "user login successfully" , token : tokenSaved.token}  })
                         }else{
                             res.json({message : "token is invalid"})
                         }
@@ -127,10 +128,10 @@ app.post('/login' , async (req,res, next)=>{
                     userUid : userCheck._id
                 })
                 let tokenSaved = await token.save()
-                userObj.message = "user login successfully";
-                userObj.token = tokenSaved.token;
+                // userObj.message = "user login successfully";
+                // userObj.token = tokenSaved.token;
                 if(tokenSaved){
-                    res.json({ user : userObj  })
+                    res.json({ user : {message : "user login successfully" , token : tokenSaved.token}  })
                 }else{
                     res.json({message : "token is invalid"})
                 }
@@ -144,6 +145,18 @@ app.post('/login' , async (req,res, next)=>{
     }
 })
 
+app.post('/get-user' , async (req,res,next)=>{
+    let {token} = req.body;
+    try {
+       
+        let tokenData = await Token.findOne({token});
+        let userData = await User.findOne({_id : tokenData.userUid})
+        res.json(userData)
+    } catch (error) {
+        res.json(error)
+    }
+
+})
 
 app.post('/logout', async (req,res,next)=>{
     let {token} = req.body;
